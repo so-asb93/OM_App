@@ -3,14 +3,17 @@ package com.example.om_app;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
-    private List<String> values;
+    private List<Joueurs> values;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -19,17 +22,19 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         // each data item is just a string in this case
         public TextView txtHeader;
         public TextView txtFooter;
+        public ImageView photo;
         public View layout;
 
         public ViewHolder(View v) {
             super(v);
             layout = v;
+            photo = (ImageView) v.findViewById(R.id.icon) ;
             txtHeader = (TextView) v.findViewById(R.id.firstLine);
             txtFooter = (TextView) v.findViewById(R.id.secondLine);
         }
     }
 
-    public void add(int position, String item) {
+    public void add(int position, Joueurs item) {
         values.add(position, item);
         notifyItemInserted(position);
     }
@@ -40,7 +45,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ListAdapter(List<String> myDataset) {
+    public ListAdapter(List<Joueurs> myDataset) {
         values = myDataset;
     }
 
@@ -63,16 +68,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        final String name = values.get(position);
-        holder.txtHeader.setText(name);
-        holder.txtHeader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                remove(position);
-            }
-        });
-
-        holder.txtFooter.setText("Footer: " + name);
+        final Joueurs currentJoueur = values.get(position);
+        holder.txtHeader.setText(currentJoueur.getName());
+        holder.txtFooter.setText(currentJoueur.getPosition());
+        Glide.with(holder.itemView.getContext()).load(currentJoueur.getImage()).into(holder.photo);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
