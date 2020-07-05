@@ -1,28 +1,23 @@
 package com.example.om_app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -39,38 +34,49 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private Gson gson;
 
+    public Button switchToOther;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sharedPreferences = getSharedPreferences("application_esiea", Context.MODE_PRIVATE);
+        //switchToOther = (Button) findViewById(R.id.goToSecond);
+
+        sharedPreferences = getSharedPreferences("OM_App", Context.MODE_PRIVATE);
         gson = new GsonBuilder()
                 .setLenient()
                 .create();
 
-        List<Joueurs> pokemonList = getDataFromCache();
 
-        if(pokemonList != null){
-            showList(pokemonList);
-        } else {
-            makeAPIcall();
-        }
+        makeAPIcall();
+
+        //switchToOther.setOnClickListener(new View.OnClickListener() {
+           // @Override
+           // public void onClick(View v) {
+                //Intent otherActivity = new Intent(getApplicationContext(),TeamBuilder.class);
+              //  startActivity(otherActivity);
+               // finish();
+           // }
+       // });
+
     }
 
     private List<Joueurs> getDataFromCache() {
-        String jsonPokemon = sharedPreferences.getString(Constants.KEY_JOUEURS_LIST, null);
+        String jsonJoueurs = sharedPreferences.getString(Constants.KEY_JOUEURS_LIST, null);
 
-        if(jsonPokemon == null){
+        Toast.makeText(getApplicationContext(), "Data from cache", Toast.LENGTH_SHORT).show();
+
+        if(jsonJoueurs == null){
             return null;
         } else {
             Type listType = new TypeToken<List<Joueurs>>(){}.getType();
-            return gson.fromJson(jsonPokemon, listType);
+            return gson.fromJson(jsonJoueurs, listType);
         }
 
     }
 
-    private void showList(List<Joueurs> pokemonList) {
+    private void showList(List<Joueurs> listJoueurs) {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         final SwipeRefreshLayout swiperefresh = findViewById(R.id.swiperefresh);
         swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -83,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        mAdapter = new ListAdapter(pokemonList);
+        mAdapter = new ListAdapter(listJoueurs, MainActivity.this);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -102,10 +108,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<RestJoueursResponse> call, Response<RestJoueursResponse> response) {
                 if(response.isSuccessful() && response.body() != null) {
-                    List<Joueurs> JoueursList = response.body().getResults();
+                    List<Joueurs> listJoueurs = response.body().getResults();
                     Toast.makeText(getApplicationContext(), "API SUCCESS", Toast.LENGTH_SHORT).show();
-                    saveList(JoueursList);
-                    showList(JoueursList);
+                    saveList(listJoueurs);
+                    showList(listJoueurs);
                 } else {
                     showError();
                 }
@@ -118,8 +124,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void saveList(List<Joueurs> pokemonList) {
-        String jsonString = gson.toJson(pokemonList);
+    private void saveList(List<Joueurs> listJoueurs) {
+        String jsonString = gson.toJson(listJoueurs);
 
         sharedPreferences
                 .edit()
@@ -134,4 +140,3 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "API ERROR", Toast.LENGTH_SHORT).show();
     }
 }
-
