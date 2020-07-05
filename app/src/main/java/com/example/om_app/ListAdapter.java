@@ -1,9 +1,12 @@
 package com.example.om_app;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +17,9 @@ import java.util.List;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private List<Joueurs> values;
+    public Context c;
+
+
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -31,6 +37,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             photo = (ImageView) v.findViewById(R.id.icon) ;
             txtHeader = (TextView) v.findViewById(R.id.firstLine);
             txtFooter = (TextView) v.findViewById(R.id.secondLine);
+
         }
     }
 
@@ -45,8 +52,9 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ListAdapter(List<Joueurs> myDataset) {
+    public ListAdapter(List<Joueurs> myDataset,Context context) {
         values = myDataset;
+        c = context;
     }
 
     // Create new views (invoked by the layout manager)
@@ -72,6 +80,23 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         holder.txtHeader.setText(currentJoueur.getName());
         holder.txtFooter.setText(currentJoueur.getPosition());
         Glide.with(holder.itemView.getContext()).load(currentJoueur.getImage()).into(holder.photo);
+        holder.txtHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //openNewActivity();
+                Intent intent = new Intent(c, JoueursDetails.class);
+                intent.putExtra("name", currentJoueur.getName());
+                intent.putExtra("position", currentJoueur.getPosition());
+                intent.putExtra("number", currentJoueur.getNumber());
+                intent.putExtra("age", currentJoueur.getAge());
+                intent.putExtra("height", currentJoueur.getHeight());
+                intent.putExtra("nationality", currentJoueur.getNationality());
+                intent.putExtra("transfer", currentJoueur.getTransfer_value());
+                intent.putExtra("end", currentJoueur.getEnd_contract());
+
+                c.startActivity(intent);
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)
